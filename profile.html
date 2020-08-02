@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+    body {
+      background: #555;
+    }
+    
+    .content {
+      max-width: 500px;
+      margin: auto;
+      background: white;
+      padding: 10px;
+    }
+    </style>
+     <script src="./amazon-cognito-identity.min.js"></script>  
+     <script src="./config.js"></script>
+     <title>Profile</title>
+  </head>
+
+  <body>
+      <div class="content">
+      <div >
+		<button type="button" onclick="signOut()" style="float: right;">Sign out </button>
+      </div>
+	
+		<h1><strong>Tap Pre-Work</strong></h1>
+		<div>
+            <label id="name"></label>
+            <label id="email_value"></label>
+        </div>
+    </div>
+		
+    <script>
+	var data = { 
+		UserPoolId : _config.cognito.userPoolId,
+        ClientId : _config.cognito.clientId
+    };
+    var userPool = new AmazonCognitoIdentity.CognitoUserPool(data);
+    var cognitoUser = userPool.getCurrentUser();
+	
+	window.onload = function(){
+    if (cognitoUser != null) {
+        cognitoUser.getSession(function(err, session) {
+            if (err) {
+                alert(err);
+                return;
+            }
+            console.log('session validity: ' + session.isValid());
+			cognitoUser.getUserAttributes(function(err, result) {
+				if (err) {
+					console.log(err);
+					return;
+				}
+                console.log(result);
+                document.getElementById("name").innerHTML = result[2].getValue()+ ' welcome <br/> ';
+				document.getElementById("email_value").innerHTML = result[3].getValue()+ ' is logged in';	
+			});			
+			
+        });
+    }
+}
+	function signOut(){
+	    if (cognitoUser != null) {
+          cognitoUser.signOut();
+          window.location.href="reg.html";	  
+        }
+	}
+    </script>
+  </body>
+</html>
